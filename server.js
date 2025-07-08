@@ -1,14 +1,15 @@
 const express = require('express');
-app.get('/', (req, res) => {
-  res.send('🎉 Serverul Căsuțe Lac este online și funcționează perfect! 🛶');
-});
-
 const fs = require('fs');
 const cors = require('cors');
 const nodemailer = require('nodemailer'); // 🔔 Adăugat
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000; // 🔧 Ajustat pentru Render
+
+// ✅ Rută principală pentru verificare
+app.get('/', (req, res) => {
+  res.send('🎉 Serverul Căsuței Lac este online și funcționează perfect! 🛶');
+});
 
 // Middleware
 app.use(cors());
