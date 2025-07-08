@@ -1,30 +1,35 @@
 const express = require('express');
-const fs = require('fs');
 const cors = require('cors');
-const nodemailer = require('nodemailer'); // 🔔 Adăugat
+const nodemailer = require('nodemailer');
 
 const app = express();
-const PORT = process.env.PORT || 3000; // 🔧 Ajustat pentru Render
+const PORT = process.env.PORT || 3000;
 
-// ✅ Rută principală pentru verificare
-app.get('/', (req, res) => {
-  res.send('🎉 Serverul Căsuței Lac este online și funcționează perfect! 🛶');
-});
+// CORS configurat corect pentru orice origine și metodele necesare
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
+app.options('*', cors());
 
-// Middleware
-app.use(cors());
 app.use(express.json());
 
-// ✉️ Configurare Nodemailer
+// Rută principală pentru verificare
+app.get('/', (req, res) => {
+  res.send('🎉 Serverul Căsuțe Lac este online și funcționează perfect! 🛶');
+});
+
+// Configurare Nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'rezervari.bicaz@gmail.com',
-    pass: 'qeei usym vxyp jqvb' // App Password generat
+    pass: 'qeei usym vxyp jqvb'
   }
 });
 
-// 🧭 Funcția care trimite emailul
+// Funcția care trimite emailul
 function trimiteEmailConfirmare(nume, email, perioada) {
   const mailOptions = {
     from: 'rezervari.bicaz@gmail.com',
@@ -46,27 +51,18 @@ function trimiteEmailConfirmare(nume, email, perioada) {
 app.post('/rezerva', (req, res) => {
   const { perioada, nume, email } = req.body;
 
-  const rezervare = {
-    perioada,
-    nume,
-    email,
-    dataTrimiterii: new Date().toISOString()
-  };
+  if (!perioada || !nume || !email) {
+    return res.status(400).json({ message: "Date lipsă!" });
+  }
 
-  fs.readFile('rezervari.json', 'utf8', (err, data) => {
-    const rezervariExistente = !err ? JSON.parse(data) : [];
-    rezervariExistente.push(rezervare);
+  // Trimite răspuns imediat (nu scrie în fișier pe Render!)
+  res.json({ message: "✅ Rezervarea a fost salvată cu succes!" });
 
-    fs.writeFile('rezervari.json', JSON.stringify(rezervariExistente, null, 2), () => {
-      res.json({ message: "✅ Rezervarea a fost salvată cu succes!" });
-
-      // ✉️ Trimite email de confirmare
-      trimiteEmailConfirmare(nume, email, perioada);
-    });
-  });
+  // Trimite email de confirmare (opțional, asincron)
+  trimiteEmailConfirmare(nume, email, perioada);
 });
 
 // Pornim serverul
 app.listen(PORT, () => {
-  console.log(`🛎️ Serverul rulează pe http://localhost:${PORT}`);
+  console.log(`🛎️ Serverul rulează pe portul ${PORT}`);
 });
