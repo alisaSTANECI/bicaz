@@ -1,4 +1,8 @@
 const express = require('express');
+app.get('/', (req, res) => {
+  res.send('🎉 Serverul Căsuțe Lac este online și funcționează perfect! 🛶');
+});
+
 const fs = require('fs');
 const cors = require('cors');
 const nodemailer = require('nodemailer'); // 🔔 Adăugat
